@@ -24,8 +24,8 @@
     <!-- Reset CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
     <!-- Link CSS -->
-    <link rel="stylesheet" href="../static/css/base.css">
-    <link rel="stylesheet" href="../static/css/main.css">
+    <link rel="stylesheet" href="/static/css/base.css">
+    <link rel="stylesheet" href="/static/css/main.css">
     <title>Cart Items</title>
 </head>
 
@@ -35,7 +35,7 @@
             <div class="header_navbar jetbrains-mono">
                 <div class="nav-logo">
                     <div class="nav-logo-img logo-img"
-                        style="background-image: url('../static/image/logo_big.png');background-size: 100% 100%;position: relative"
+                        style="background-image: url('/static/image/logo_big.png');background-size: 100% 100%;position: relative"
                         alt="Logo">
                         <a style="width:100px;height:100px;position: absolute" th:href="@{/index}"></a>
                     </div>
@@ -54,7 +54,7 @@
                         <a th:case="existed" style="text-decoration: none;" th:href="@{/login}">Logout</a>
                         <a th:case="non-existed" style="text-decoration: none;" th:href="@{/logout}">Login</a>
                     </button>
-                    <img class="nav-login-cart-img" src="../static/image/cart_icon.png" alt="cart icon">
+                    <img class="nav-login-cart-img" src="/static/image/cart_icon.png" alt="cart icon">
                     <div class="nav-login-cart-count" th:text="${cart_items.size()}"></div>
                 </div>
             </div>
@@ -72,7 +72,7 @@
         <div class="cartitems-product-wrap bricolage-grotesque" th:each="item:${cart_items}">
             <div>
                 <div class="cartitems-format cartitems-format-main">
-                    <img th:src="${'../static/image/'+item.product.image}" alt="" class="cartitems-product-img">
+                    <img th:src="${'/static/image/'+item.product.image}" alt="" class="cartitems-product-img">
                     <p th:text="${item.product.productName}"></p>
                     <p th:text="${item.product.price}"></p>
                     <a th:href="${'/minusItem/'+item.id}">-</a>
@@ -80,7 +80,7 @@
                     <a th:href="${'/addOneToCart/'+item.id}">+</a>
                     <p th:text="${item.product.price*item.quantity}"></p>
                     <a th:href="${'/removeAllFromCart/'+item.id}">
-                        <img src="../static/image/cart_cross_icon.png" alt="" class="cartitems-remove-icon">
+                        <img src="/static/image/cart_cross_icon.png" alt="" class="cartitems-remove-icon">
                     </a>
                 </div>
                 <hr />
