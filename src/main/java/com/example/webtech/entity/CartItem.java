@@ -1,4 +1,4 @@
-package main.java.com.example.webtech.entity;
+package com.example.webtech.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
