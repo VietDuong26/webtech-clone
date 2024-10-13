@@ -1,5 +1,4 @@
 package com.example.webtech.entity;
-import org.hibernate.engine.jdbc.Size;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -13,7 +12,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @Table(name="stock")
-
 public class Stock {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
