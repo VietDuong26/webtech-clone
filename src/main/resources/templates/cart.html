@@ -34,16 +34,14 @@
         <div class="header">
             <div class="header_navbar jetbrains-mono">
                 <div class="nav-logo">
-                    <div class="nav-logo-img logo-img"
-                        style="background-image: url('/static/image/logo_big.png');background-size: 100% 100%;position: relative"
-                        alt="Logo">
-                        <a style="width:100px;height:100px;position: absolute" th:href="@{/index}"></a>
-                    </div>
-                    <p class="nav-logo-name logo-name">shopper</p>
+                    <a th:href="@{/index}" class="flex" title="Homepage">
+                        <img src="./assets/img/logo_big.png" alt="Homepage_logo">
+                        <span>SHOPPER</span>
+                    </a>
                 </div>
 
                 <ul class="nav-menu">
-                    <li class="nav-menu-item"><a th:href="@{/index}">Shop</a></li>
+                    <li class="nav-menu-item"><a style="color:grey;">Shop</a></li>
                     <li class="nav-menu-item"><a th:href="@{/Man_HomePage}">Man</a></li>
                     <li class="nav-menu-item"><a th:href="@{/Woman_HomePage}">Woman</a></li>
                     <li class="nav-menu-item"><a th:href="@{/Kid_HomePage}">Kid</a></li>
@@ -51,11 +49,17 @@
 
                 <div class="nav-login-cart">
                     <button th:switch="${user}" class="nav-login-cart-btn btn">
-                        <a th:case="existed" style="text-decoration: none;" th:href="@{/login}">Logout</a>
-                        <a th:case="non-existed" style="text-decoration: none;" th:href="@{/logout}">Login</a>
+                        <a th:case="existed" th:href="@{/login}">Logout</a>
+                        <a th:case="non-existed" th:href="@{/logout}">Login</a>
                     </button>
-                    <img class="nav-login-cart-img" src="/static/image/cart_icon.png" alt="cart icon">
-                    <div class="nav-login-cart-count" th:text="${cart_items.size()}"></div>
+                    <div class="relative cur-pointer header-cart">
+                        <div th:switch="${user}">
+                            <a th:case="existed" th:href="@{/Cart}"></a>
+                            <a th:case="non-existed" onclick="alert('Bạn cần đăng nhập để xem giỏ hàng!!!')"></a>
+                            <img src="./assets/img/cart_icon.png" alt="Cart Icon">
+                        </div>
+                        <div class="nav-login-cart-count" th:text="${cart_size}">0</div>
+                    </div>
                 </div>
             </div>
         </div>
