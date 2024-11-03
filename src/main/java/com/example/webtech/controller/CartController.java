@@ -1,17 +1,18 @@
 package com.example.webtech.controller;
 
 import com.example.webtech.entity.CartItem;
-import com.example.webtech.service.*;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import com.example.webtech.service.CartService;
+import com.example.webtech.service.OrdersService;
+import com.example.webtech.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class CartController {
@@ -20,67 +21,50 @@ public class CartController {
     @Autowired
     UserService userService;
     @Autowired
-    ProductService productService;
-    @Autowired
-    SizeService sizeService;
-    @Autowired
-    ColorService colorService;
-
-    @GetMapping("/Cart")
-    String showCart(Model model) {
-        model.addAttribute("cart_items",
-                cartService.getAllByUserPhoneNumber(SecurityContextHolder.getContext().getAuthentication().getName()));
-        int subtotal = 0;
-        for (CartItem item : cartService
-                .getAllByUserPhoneNumber(SecurityContextHolder.getContext().getAuthentication().getName())) {
-            subtotal += item.getProduct().getPrice() * item.getQuantity();
-        }
-        if (userService.checkIfExist(SecurityContextHolder.getContext().getAuthentication().getName())) {
+    OrdersService ordersService ;
+    @GetMapping("/cart")
+    String showCart(Model model){
+        if (userService.checkIfExist(SecurityContextHolder.getContext().getAuthentication().getName())){
             model.addAttribute("user", "existed");
-        } else {
-            model.addAttribute("user", "non-existed");
+            model.addAttribute("cart_size",cartService.getAllByUserPhone(SecurityContextHolder.getContext().getAuthentication().getName()).size());
+        }else{
+            model.addAttribute("user","non-existed");
+            model.addAttribute("cart_size",0);
         }
-        model.addAttribute("subtotal", subtotal);
+        model.addAttribute("cart_items",cartService.getAllByUserPhone(SecurityContextHolder.getContext().getAuthentication().getName()));
+        long total=0;
+        for (CartItem x: cartService.getAllByUserPhone(SecurityContextHolder.getContext().getAuthentication().getName())){
+            total+=x.getQuantity()*x.getProduct().getPrice();
+        }
+        model.addAttribute("total",total);
         return "cart";
     }
-
     @RequestMapping("/addToCart")
-    String addToCart(@RequestParam("pid") long pid,
-            @RequestParam(value = "sid") long sid,
-            @RequestParam(value = "cid") long cid) {
-        CartItem item = cartService.findByUserAndProductAndSizeAndColor(
-                SecurityContextHolder.getContext().getAuthentication().getName(), pid, sid, cid);
-        if (item != null) {
-            item.setQuantity(item.getQuantity() + 1);
-            cartService.addToCart(item);
-        } else {
-            CartItem cartItem = new CartItem();
-            cartItem.setQuantity(1);
-            cartItem.setProduct(productService.findById(pid));
-            cartItem.setUser(
-                    userService.findByPhoneNumber(SecurityContextHolder.getContext().getAuthentication().getName()));
-            cartItem.setSize(sizeService.findById(sid));
-            cartItem.setColor(colorService.findById(cid));
-            cartService.addToCart(cartItem);
+    String addToCart(@RequestParam(value = "product_id",required = false) String pid
+            , @RequestParam(value = "quantity", required = false) String quantity
+            , @RequestParam(value = "size_id",required = false) String sid
+            , @RequestParam(value = "color_id",required = false) String cid
+            , @RequestParam(value = "cart_id", required = false) String cartId) {
+        cartService.addToCart(cartId, quantity, pid, sid, cid);
+        if (cartId == null) {
+            return "redirect:/detail/" + pid;
+        }else{
+            return "redirect:/cart";
         }
-        return "redirect:/Cart";
     }
-
-    @RequestMapping("/minusItem/{id}")
-    String minusItem(@PathVariable("id") long id) {
-        cartService.minusItem(id);
-        return "redirect:/Cart";
+    @RequestMapping("/removeFromCart")
+    String removeFromCart(@RequestParam("cart_id")String cartId){
+        cartService.deleteFromCart(Long.valueOf(cartId));
+        return "redirect:/cart";
     }
-
-    @RequestMapping("/addOneToCart/{id}")
-    String addOneItem(@PathVariable("id") long id) {
-        cartService.addOneItem(id);
-        return "redirect:/Cart";
+    @RequestMapping("/deleteOneFromCart")
+    String deleteOneFromCart(@RequestParam("cart_id")String cartId){
+        cartService.deleteOneFromCart(Long.valueOf(cartId));
+        return "redirect:/cart";
     }
-
-    @RequestMapping("/removeAllFromCart/{id}")
-    String removeAll(@PathVariable("id") long id) {
-        cartService.removeFromCart(id);
-        return "redirect:/Cart";
+    @GetMapping("/checkout")
+    ResponseEntity<Boolean> checkout(){
+        ordersService.checkOut();
+        return ResponseEntity.status(HttpStatus.OK).body(true);
     }
 }
