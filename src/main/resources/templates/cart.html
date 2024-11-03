@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="../static/image/favicon.ico">
     <!-- Link font jetbrains-mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,8 +25,11 @@
     <!-- Reset CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
     <!-- Link CSS -->
+    <link rel="stylesheet" href="/static/css/header.css">
     <link rel="stylesheet" href="/static/css/base.css">
+    <link rel="stylesheet" href="/static/css/cart.css">
     <link rel="stylesheet" href="/static/css/main.css">
+
     <title>Cart Items</title>
 </head>
 
@@ -35,18 +39,16 @@
             <div class="header_navbar jetbrains-mono">
                 <div class="nav-logo">
                     <a th:href="@{/index}" class="flex" title="Homepage">
-                        <img src="./assets/img/logo_big.png" alt="Homepage_logo">
+                        <img src="/static/image/logo_big.png" alt="Homepage_logo">
                         <span>SHOPPER</span>
                     </a>
                 </div>
 
                 <ul class="nav-menu">
-                    <li class="nav-menu-item"><a style="color:grey;">Shop</a></li>
                     <li class="nav-menu-item"><a th:href="@{/Man_HomePage}">Man</a></li>
                     <li class="nav-menu-item"><a th:href="@{/Woman_HomePage}">Woman</a></li>
                     <li class="nav-menu-item"><a th:href="@{/Kid_HomePage}">Kid</a></li>
                 </ul>
-
                 <div class="nav-login-cart">
                     <button th:switch="${user}" class="nav-login-cart-btn btn">
                         <a th:case="existed" th:href="@{/login}">Logout</a>
@@ -56,14 +58,93 @@
                         <div th:switch="${user}">
                             <a th:case="existed" th:href="@{/Cart}"></a>
                             <a th:case="non-existed" onclick="alert('Bạn cần đăng nhập để xem giỏ hàng!!!')"></a>
-                            <img src="./assets/img/cart_icon.png" alt="Cart Icon">
+                            <img src="/static/image/cart_icon.png" alt="Cart Icon">
                         </div>
                         <div class="nav-login-cart-count" th:text="${cart_size}">0</div>
                     </div>
                 </div>
             </div>
         </div>
-
+        <div class="cart-container bricolage-grotesque flex">
+            <div class="cart-content">
+                <div class="cart-title flex">
+                    <h2>Giỏ hàng</h2>
+                    <p><span class="number-item" th:text="${cart_items.size()}"></span><span> sản phẩm</span></p>
+                </div>
+                <div class="list-cart-products">
+                    <div th:each="cart_item:${cart_items}" class="cart-products-item relative flex">
+                        <div class="cart-product-img"><img th:src="'/static/image/'+${cart_item.product.image}"
+                                alt="Product 15"></div>
+                        <div class="cart-product-detail">
+                            <p class="cart-product-name" th:text="${cart_item.product.productName}"></p>
+                            <p class="cart-product-mini">
+                                <span class="cart-product-size" th:text="${cart_item.size.sizeName}"></span>, <span
+                                    class="cart-product-color" th:text="${cart_item.color.colorName}"></span>
+                            </p>
+                        </div>
+                        <div class="cart-product-quantity">
+                            <span class="add-quantity" th:onclick="'javascript:add('+${cart_item.id}+')'">+</span>
+                            <span class="quantity-product" th:text="${cart_item.quantity}"></span>
+                            <span class="delete-quantity"
+                                th:onclick="'javascript:deleteOne('+${cart_item.id}+')'">-</span>
+                        </div>
+                        <div class="cart-product-price">
+                            <p class="product-price" th:text="${cart_item.product.price + 'đ'}"></p>
+                        </div>
+                        <div class="delet-cart-product">
+                            <span class="delete-product" th:onclick="'javascript:remove('+${cart_item.id}+')'">x</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="cart-checkout relative">
+                <h2 class="relative">Hóa đơn</h2>
+                <div class="checkout-product">
+                    <p class="text-upcase">Sản phẩm: <span class="number-item" th:text="${cart_items.size()}"></span>
+                    </p>
+                    <p style="text-align: right;"><span class="checkout-product-price" th:text="${total+'đ'}"></span>
+                    </p>
+                    <p style="margin-top: 1.75rem;" class="text-upcase">Phí vận chuyển:</p>
+                    <div class="list-shipping flex">
+                        <span>Tiêu chuẩn +30.000đ</span>
+                    </div>
+                    <div class="promo-code">
+                        <p style="margin-top: 1.75rem;" class="text-upcase">Mã khuyến mại</p>
+                        <input type="text" title="promoCode" placeholder='Nhập mã ABC để nhận khuyến mại'>
+                        <p class="hide promocode-fail">Mã khuyến mại không chính xác</p>
+                        <p class="hide promocode-success">-10.000đ</p>
+                        <span onclick="CheckPromoCode()">Áp dụng</span>
+                    </div>
+                    <div class="line-checkout"></div>
+                    <div class="final-checkout">
+                        <p>THÀNH TIỀN</p>
+                        <p class="checkout-money" th:text="${total+30000+'đ'}"></p>
+                        <span onclick="checkout()" class="checkout-button">THANH TOÁN</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
+        integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="/static/js/main.js"></script>
+    <script>
+        function checkout() {
+            $.ajax({
+                type: "GET",
+                url: "http://localhost:8080/checkout",
+                success: function (data) {
+                    if (data) {
+                        window.location.href = '/cart';
+                    }
+                },
+                error: function (error) {
+                    console.log(error)
+                }
+            })
+        }
+    </script>
 </body>
 
 </html>
